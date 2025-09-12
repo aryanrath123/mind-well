@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindWell - Mental Health Support</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #8b5cf6, #ec4899);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .resource-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .forum-post {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .forum-post:hover {
+            transform: translateX(5px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .chat-bubble {
+            background: rgba(139, 92, 246, 0.15);
+            border-radius: 18px 18px 18px 0;
+        }
+
+        .user-bubble {
+            background: rgba(236, 72, 153, 0.15);
+            border-radius: 18px 18px 0 18px;
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .quick-btn {
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.5) !important;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 py-4 px-4 sm:px-6 lg:px-8 glass-card">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 flex items-center">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                        <i class="fas fa-brain text-white"></i>
+                    </div>
+                    <span class="ml-3 text-xl font-bold gradient-text">MindWell</span>
+                </div>
+                <div class="hidden md:ml-10 md:flex md:space-x-8">
+                    <a href="#home"
+                        class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">Home</a>
+                    <a href="#resources"
+                        class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">Resources</a>
+                    <a href="#forum"
+                        class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">Community</a>
+                    <a href="#booking"
+                        class="nav-link text-gray-300 hover:text-white px-3 py-2 text-sm font-medium">Appointments</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button id="login-btn" class="text-gray-300 hover:text-white font-medium">
+                    Login
+                </button>
+                <button id="signup-btn" class="btn-primary px-4 py-2 rounded-md text-sm font-medium">
+                    Sign Up
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="pt-32 pb-20 px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-5xl font-bold mb-6">Mental Health Support <span class="gradient-text">For
+                            Students</span></h1>
+                    <p class="text-lg text-gray-300 mb-8">A safe, confidential space to find support, resources, and
+                        professional help for your mental wellbeing. Anytime, anywhere.</p>
+                    <div class="flex space-x-4">
+                        <button class="btn-primary px-8 py-4 rounded-md font-medium text-lg">
+                            Get Support Now
+                        </button>
+                        <button
+                            class="glass-card border border-purple-500/30 text-white px-8 py-4 rounded-md font-medium text-lg hover:border-purple-500/60 transition-all">
+                            <i class="fas fa-play-circle mr-2"></i> Watch Video
+                        </button>
+                    </div>
+                    <div class="flex mt-12 space-x-8">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold gradient-text">5K+</div>
+                            <div class="text-gray-400 mt-1">Students Helped</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold gradient-text">24/7</div>
+                            <div class="text-gray-400 mt-1">Support Available</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold gradient-text">100%</div>
+                            <div class="text-gray-400 mt-1">Confidential</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <div class="glass-card p-2 rounded-2xl transform rotate-3">
+                        <img src="https://images.unsplash.com/photo-1598257006626-48b0c252070d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
+                            alt="Mental Health Support" class="rounded-2xl shadow-2xl">
+                    </div>
+
+                    <!-- Tilted notification box -->
+                    <div
+                        class="absolute -bottom-6 -left-6 glass-card p-6 rounded-2xl shadow-lg w-80 transform rotate-3">
+                        <div class="flex items-center">
+                            <!-- Modern glowing status dot -->
+                            <div class="relative flex-shrink-0 mr-3">
+                                <span
+                                    class="absolute inline-flex w-5 h-5 rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                                <span class="relative inline-flex w-5 h-5 rounded-full bg-green-500 shadow-lg"></span>
+                            </div>
+                            <p class="text-sm font-medium">
+                                Counselor available now for immediate support
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Chat Support -->
+    <section class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4">AI-Guided Mental Health First Aid</h2>
+            <p class="text-gray-400 text-center mb-12">Get immediate support from our AI assistant, available 24/7</p>
+            <div class="max-w-3xl mx-auto glass-card rounded-2xl p-1">
+                <div class="rounded-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/30 p-6">
+                    <div id="chat-container" class="h-80 overflow-y-auto mb-4 p-4 rounded-2xl bg-gray-900/50">
+                        <div class="flex mb-4">
+                            <div class="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center mr-3">
+                                <i class="fas fa-robot text-purple-400"></i>
+                            </div>
+                            <div class="chat-bubble p-4 max-w-xs md:max-w-md">
+                                <p class="text-gray-100">Hello! I'm here to provide support and guidance. How are you
+                                    feeling today?</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex">
+                        <input type="text" id="chat-input" placeholder="Type your message here..."
+                            class="flex-1 rounded-l-2xl p-4 bg-gray-900/50 border-r-0 text-white">
+                        <button id="send-btn" class="btn-primary px-6 rounded-r-2xl">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-2">
+                        <button
+                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">I'm
+                            feeling anxious</button>
+                        <button
+                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">I
+                            can't sleep</button>
+                        <button
+                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">Academic
+                            stress</button>
+                        <button
+                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">Feeling
+                            lonely</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section id="resources" class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4">Mental Wellness Resources</h2>
+            <p class="text-gray-400 text-center mb-12">Explore our library of resources to support your mental health
+                journey</p>
+
+            <div class="flex space-x-2 mb-8 glass-card p-1 rounded-2xl w-max mx-auto">
+                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium active">All</button>
+                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Meditation</button>
+                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Articles</button>
+                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Crisis</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="resource-card rounded-2xl p-6">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                        <i class="fas fa-headphones-alt text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Guided Meditation</h3>
+                    <p class="text-gray-400 mb-4">Audio sessions to help reduce stress and improve focus.</p>
+                    <button class="text-purple-400 font-medium flex items-center">
+                        Listen Now <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="resource-card rounded-2xl p-6">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                        <i class="fas fa-book-open text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Wellness Articles</h3>
+                    <p class="text-gray-400 mb-4">Research-based articles on managing mental health in college.</p>
+                    <button class="text-purple-400 font-medium flex items-center">
+                        Read Articles <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                    </button>
+                </div>
+
+                <div class="resource-card rounded-2xl p-6">
+                    <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                        <i class="fas fa-first-aid text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Crisis Resources</h3>
+                    <p class="text-gray-400 mb-4">Immediate help and hotlines for urgent mental health needs.</p>
+                    <button class="text-purple-400 font-medium flex items-center">
+                        Get Help Now <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section id="booking" class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4">Book a Confidential Appointment</h2>
+            <p class="text-gray-400 text-center mb-12">Schedule a session with our licensed professionals</p>
+
+            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                        <i class="fas fa-university text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">On-Campus Counseling</h3>
+                    <p class="text-gray-400 mb-6">Schedule a session with our licensed campus counselors.</p>
+                    <ul class="mb-6 space-y-3">
+                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i>
+                            Completely confidential</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Free for
+                            students</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Flexible
+                            timing</li>
+                    </ul>
+                    <button class="btn-primary w-full py-3 rounded-xl font-medium">
+                        Book Now
+                    </button>
+                </div>
+
+                <div class="glass-card rounded-2xl p-8">
+                    <div class="w-16 h-16 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                        <i class="fas fa-phone-alt text-2xl text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">External Mental Health Helpline</h3>
+                    <p class="text-gray-400 mb-6">Connect with mental health professionals outside campus.</p>
+                    <ul class="mb-6 space-y-3">
+                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> 24/7
+                            availability</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Multiple
+                            language support</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Anonymous
+                            options</li>
+                    </ul>
+                    <button class="btn-primary w-full py-3 rounded-xl font-medium">
+                        View Options
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Peer Support Forum -->
+    <section id="forum" class="py-16 px-4">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-3xl font-bold text-center mb-4">Peer Support Community</h2>
+            <p class="text-gray-400 text-center mb-12">Connect with others who understand what you're going through</p>
+
+            <div class="max-w-4xl mx-auto glass-card rounded-2xl p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-semibold">Recent Discussions</h3>
+                    <button class="btn-primary px-6 py-3 rounded-xl text-sm">
+                        <i class="fas fa-plus mr-2"></i> New Discussion
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="forum-post rounded-2xl p-6">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-purple-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold mb-2">Coping with exam stress</h4>
+                                <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 2 hours ago</p>
+                                <p class="text-gray-300 mb-4">I'm feeling overwhelmed with my finals coming up. Any tips
+                                    on managing study stress?</p>
+                                <div class="flex">
+                                    <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 12
+                                        replies</button>
+                                    <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 24
+                                        supports</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="forum-post rounded-2xl p-6">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-purple-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold mb-2">Sleep issues</h4>
+                                <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 5 hours ago</p>
+                                <p class="text-gray-300 mb-4">I've been having trouble sleeping for the past few weeks.
+                                    Any advice?</p>
+                                <div class="flex">
+                                    <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 8
+                                        replies</button>
+                                    <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 15
+                                        supports</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="forum-post rounded-2xl p-6">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-user text-purple-400"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold mb-2">Feeling homesick</h4>
+                                <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 1 day ago</p>
+                                <p class="text-gray-300 mb-4">This is my first semester away from home and I'm really
+                                    missing my family...</p>
+                                <div class="flex">
+                                    <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 20
+                                        replies</button>
+                                    <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 32
+                                        supports</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-16 px-4 mt-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div
+                            class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                            <i class="fas fa-brain text-white"></i>
+                        </div>
+                        <span class="ml-3 text-xl font-bold gradient-text">MindWell</span>
+                    </div>
+                    <p class="text-gray-400">Providing mental health support to college students in a safe, confidential
+                        environment.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-6">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#home" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="#resources" class="text-gray-400 hover:text-white transition-colors">Resources</a>
+                        </li>
+                        <li><a href="#forum" class="text-gray-400 hover:text-white transition-colors">Community</a></li>
+                        <li><a href="#booking" class="text-gray-400 hover:text-white transition-colors">Appointments</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-6">Emergency Resources</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Crisis Hotline:
+                                1-800-273-8255</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Text Line: 741741</a>
+                        </li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Emergency Services</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold mb-6">Contact Us</h4>
+                    <ul class="space-y-3">
+                        <li class="text-gray-400"><i class="fas fa-envelope mr-3 text-purple-400"></i>
+                            support@mindwell.edu</li>
+                        <li class="text-gray-400"><i class="fas fa-phone mr-3 text-purple-400"></i> (123) 456-7890</li>
+                    </ul>
+                    <div class="flex space-x-4 mt-6">
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#"
+                            class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 MindWell. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="modal hidden">
+        <div class="modal-content glass-card p-6 rounded-2xl w-96">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-xl font-semibold">Sign In</h2>
+                <button id="close-modal" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="">
+                <input type="email" id="login-email" placeholder="Email"
+                    class="w-full p-3 rounded-lg mb-3 bg-black/30 text-white border border-gray-600">
+                <input type="password" id="login-password" placeholder="Password"
+                    class="w-full p-3 rounded-lg mb-3 bg-black/30 text-white border border-gray-600">
+                <button type="submit" class="btn-primary w-full py-3">Sign In</button>
+
+                <div class="flex items-center my-4">
+                    <div class="flex-1 h-px bg-gray-700"></div>
+                    <span class="px-3 text-gray-400 text-sm">or</span>
+                    <div class="flex-1 h-px bg-gray-700"></div>
+                </div>
+
+                <button type="button" id="google-login"
+                    class="w-full flex items-center justify-center bg-white text-black rounded-lg p-3 hover:bg-gray-100 transition-colors">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 mr-2">
+                    Sign in with Google
+                </button>
+
+                <p class="mt-3 text-sm text-gray-400 text-center">
+                    Don't have an account? <span id="switch-to-signup"
+                        class="text-purple-400 cursor-pointer hover:underline">Sign Up</span>
+                </p>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" class="hidden">
+                <input type="email" id="signup-email" placeholder="Email"
+                    class="w-full p-3 rounded-lg mb-3 bg-black/30 text-white border border-gray-600">
+                <input type="password" id="signup-password" placeholder="Password"
+                    class="w-full p-3 rounded-lg mb-3 bg-black/30 text-white border border-gray-600">
+                <button type="submit" class="btn-primary w-full py-3">Sign Up</button>
+
+                <div class="flex items-center my-4">
+                    <div class="flex-1 h-px bg-gray-700"></div>
+                    <span class="px-3 text-gray-400 text-sm">or</span>
+                    <div class="flex-1 h-px bg-gray-700"></div>
+                </div>
+
+                <button type="button" id="google-signup"
+                    class="w-full flex items-center justify-center bg-white text-black rounded-lg p-3 hover:bg-gray-100 transition-colors">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5 mr-2">
+                    Sign up with Google
+                </button>
+
+                <p class="mt-3 text-sm text-gray-400 text-center">
+                    Already have an account? <span id="switch-to-login"
+                        class="text-purple-400 cursor-pointer hover:underline">Sign In</span>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Backdrop -->
+    <div id="modal-backdrop" class="hidden fixed inset-0 bg-black/70 z-40"></div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzUCIHQDJ0wOqnVpL1KJGt1pKWTbG9-i8",
+            authDomain: "mind-well-296d4.firebaseapp.com",
+            projectId: "mind-well-296d4",
+            storageBucket: "mind-well-296d4.firebasestorage.app",
+            messagingSenderId: "152821261463",
+            appId: "1:152821261463:web:e75f997e966439b42975d2"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginBtn = document.getElementById('login-btn');
+            const signupBtn = document.getElementById('signup-btn');
+            const modal = document.getElementById('auth-modal');
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const closeModal = document.getElementById('close-modal');
+            const switchToSignup = document.getElementById('switch-to-signup');
+            const switchToLogin = document.getElementById('switch-to-login');
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const modalTitle = document.getElementById('modal-title');
+            const googleLoginBtn = document.getElementById('google-login');
+            const googleSignupBtn = document.getElementById('google-signup');
+
+            const chatContainer = document.getElementById('chat-container');
+            const chatInput = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            const quickBtns = document.querySelectorAll('.quick-btn');
+
+            const tabButtons = document.querySelectorAll('.tab-button');
+
+            // Modal functionality
+            function openModal() {
+                modal.classList.remove('hidden');
+                modalBackdrop.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.add('active');
+                    modalBackdrop.classList.add('active');
+                }, 10);
+            }
+
+            function closeModalFunc() {
+                modal.classList.remove('active');
+                modalBackdrop.classList.remove('active');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modalBackdrop.classList.add('hidden');
+                }, 300);
+            }
+
+            function showLoginForm() {
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                modalTitle.textContent = 'Sign In';
+            }
+
+            function showSignupForm() {
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                modalTitle.textContent = 'Create Account';
+            }
+
+            // Event listeners for modal
+            loginBtn.addEventListener('click', () => {
+                openModal();
+                showLoginForm();
+            });
+
+            signupBtn.addEventListener('click', () => {
+                openModal();
+                showSignupForm();
+            });
+
+            closeModal.addEventListener('click', closeModalFunc);
+            modalBackdrop.addEventListener('click', closeModalFunc);
+
+            switchToSignup.addEventListener('click', showSignupForm);
+            switchToLogin.addEventListener('click', showLoginForm);
+
+            // Tab buttons
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+
+            // Chat functionality
+            const aiResponses = {
+                'default': "I'm here to listen. Can you tell me more about how you're feeling?",
+                'anxious': "It's common to feel anxious sometimes. Try taking deep breaths - inhale for 4 seconds, hold for 4, exhale for 6. Would you like to try a guided meditation?",
+                'sleep': "Sleep issues can really impact your wellbeing. Establishing a regular bedtime routine and limiting screen time before bed can help. Would you like some sleep relaxation audio?",
+                'stress': "Academic stress is challenging. Breaking tasks into smaller steps and taking regular breaks can make it more manageable. Would you like to schedule a session with a counselor?",
+                'lonely': "Feeling lonely can be difficult. Many students find joining clubs or study groups helps with connection. Our peer support forum might be helpful too."
+            };
+
+            function addMessage(message, isUser) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('flex', 'mb-4');
+
+                if (isUser) {
+                    messageDiv.classList.add('justify-end');
+                    messageDiv.innerHTML = `
+                        <div class="user-bubble p-4 max-w-xs md:max-w-md">
+                            <p class="text-gray-100">${message}</p>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center ml-3">
+                            <i class="fas fa-user text-gray-300"></i>
+                        </div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center mr-3">
+                            <i class="fas fa-robot text-purple-400"></i>
+                        </div>
+                        <div class="chat-bubble p-4 max-w-xs md:max-w-md">
+                            <p class="text-gray-100">${message}</p>
+                        </div>
+                    `;
+                }
+
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+            function getAIResponse(userMessage) {
+                userMessage = userMessage.toLowerCase();
+
+                if (userMessage.includes('anxious') || userMessage.includes('anxiety')) {
+                    return aiResponses.anxious;
+                } else if (userMessage.includes('sleep') || userMessage.includes('tired')) {
+                    return aiResponses.sleep;
+                } else if (userMessage.includes('stress') || userMessage.includes('stressed')) {
+                    return aiResponses.stress;
+                } else if (userMessage.includes('lonely') || userMessage.includes('alone')) {
+                    return aiResponses.lonely;
+                } else {
+                    return aiResponses.default;
+                }
+            }
+
+            sendBtn.addEventListener('click', function () {
+                const message = chatInput.value.trim();
+                if (message) {
+                    addMessage(message, true);
+                    chatInput.value = '';
+
+                    setTimeout(() => {
+                        addMessage(getAIResponse(message), false);
+                    }, 1000);
+                }
+            });
+
+            quickBtns.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const message = this.textContent;
+                    addMessage(message, true);
+
+                    setTimeout(() => {
+                        addMessage(getAIResponse(message), false);
+                    }, 1000);
+                });
+            });
+
+            chatInput.addEventListener('keypress', function (e) {
+                if (e.key === 'Enter') {
+                    sendBtn.click();
+                }
+            });
+
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        const navHeight = document.querySelector('nav').offsetHeight;
+                        const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+
+                        window.scrollTo({
+                            top: targetPosition,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Welcome message
+            setTimeout(() => {
+                addMessage("Welcome to MindWell! I'm here to provide support and guidance. You can ask me about managing stress, anxiety, sleep issues, or anything else on your mind.", false);
+            }, 1000);
+
+            // Auth functionality
+            loginForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+
+                auth.signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        closeModalFunc();
+                        alert('Successfully logged in!');
+                    })
+                    .catch((error) => {
+                        alert('Error: ' + error.message);
+                    });
+            });
+
+            signupForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        closeModalFunc();
+                        alert('Account created successfully!');
+                    })
+                    .catch((error) => {
+                        alert('Error: ' + error.message);
+                    });
+            });
+
+            // Google authentication
+            const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+            googleLoginBtn.addEventListener('click', function () {
+                auth.signInWithPopup(googleProvider)
+                    .then((result) => {
+                        closeModalFunc();
+                        alert('Successfully logged in with Google!');
+                    })
+                    .catch((error) => {
+                        alert('Error: ' + error.message);
+                    });
+            });
+
+            googleSignupBtn.addEventListener('click', function () {
+                auth.signInWithPopup(googleProvider)
+                    .then((result) => {
+                        closeModalFunc();
+                        alert('Successfully signed up with Google!');
+                    })
+                    .catch((error) => {
+                        alert('Error: ' + error.message);
+                    });
+            });
+        });
+    </script>
+</body>
+
+</html>
