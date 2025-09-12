@@ -61,6 +61,7 @@
             height: 2px;
             background: linear-gradient(90deg, #8b5cf6, #ec4899);
             transition: width 0.3s ease;
+            transition: width 0.3s ease;
         }
 
         .nav-link:hover::after {
@@ -146,6 +147,67 @@
         input::placeholder {
             color: rgba(255, 255, 255, 0.5) !important;
         }
+
+        .profile-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: rgba(30, 30, 46, 0.95);
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .profile-dropdown.active {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 12px 16px;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .profile-dropdown a:hover {
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .profile-dropdown hr {
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 4px 0;
+        }
+
+        .user-page {
+            display: none;
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        .user-page.active {
+            display: block;
+        }
+
+        .main-content {
+            transition: opacity 0.3s ease;
+        }
+
+        .main-content.hidden {
+            display: none;
+        }
     </style>
 </head>
 
@@ -173,367 +235,534 @@
                 </div>
             </div>
             <div class="flex items-center space-x-4">
-                <button id="login-btn" class="text-gray-300 hover:text-white font-medium">
-                    Login
-                </button>
-                <button id="signup-btn" class="btn-primary px-4 py-2 rounded-md text-sm font-medium">
-                    Sign Up
-                </button>
+                <div id="auth-buttons">
+                    <button id="login-btn" class="text-gray-300 hover:text-white font-medium">
+                        Login
+                    </button>
+                    <button id="signup-btn" class="btn-primary px-4 py-2 rounded-md text-sm font-medium">
+                        Sign Up
+                    </button>
+                </div>
+                <div id="profile-icon" class="profile-menu hidden">
+                    <button id="profile-btn" class="w-10 h-10 rounded-full bg-purple-600 flex items-center justify-center">
+                        <i class="fas fa-user text-white"></i>
+                    </button>
+                    <div id="profile-dropdown" class="profile-dropdown">
+                        <a href="#" id="view-profile-link"><i class="fas fa-user-circle mr-2"></i> My Profile</a>
+                        <a href="#"><i class="fas fa-cog mr-2"></i> Settings</a>
+                        <hr>
+                        <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt mr-2"></i> Logout</a>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section id="home" class="pt-32 pb-20 px-4">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                    <h1 class="text-5xl font-bold mb-6">Mental Health Support <span class="gradient-text">For
-                            Students</span></h1>
-                    <p class="text-lg text-gray-300 mb-8">A safe, confidential space to find support, resources, and
-                        professional help for your mental wellbeing. Anytime, anywhere.</p>
-                    <div class="flex space-x-4">
-                        <button class="btn-primary px-8 py-4 rounded-md font-medium text-lg">
-                            Get Support Now
-                        </button>
-                        <button
-                            class="glass-card border border-purple-500/30 text-white px-8 py-4 rounded-md font-medium text-lg hover:border-purple-500/60 transition-all">
-                            <i class="fas fa-play-circle mr-2"></i> Watch Video
-                        </button>
-                    </div>
-                    <div class="flex mt-12 space-x-8">
-                        <div class="text-center">
-                            <div class="text-3xl font-bold gradient-text">5K+</div>
-                            <div class="text-gray-400 mt-1">Students Helped</div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Hero Section -->
+        <section id="home" class="pt-32 pb-20 px-4">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h1 class="text-5xl font-bold mb-6">Mental Health Support <span class="gradient-text">For
+                                Students</span></h1>
+                        <p class="text-lg text-gray-300 mb-8">A safe, confidential space to find support, resources, and
+                            professional help for your mental wellbeing. Anytime, anywhere.</p>
+                        <div class="flex space-x-4">
+                            <button class="btn-primary px-8 py-4 rounded-md font-medium text-lg">
+                                Get Support Now
+                            </button>
+                            <button
+                                class="glass-card border border-purple-500/30 text-white px-8 py-4 rounded-md font-medium text-lg hover:border-purple-500/60 transition-all">
+                                <i class="fas fa-play-circle mr-2"></i> Watch Video
+                            </button>
                         </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold gradient-text">24/7</div>
-                            <div class="text-gray-400 mt-1">Support Available</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold gradient-text">100%</div>
-                            <div class="text-gray-400 mt-1">Confidential</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="relative">
-                    <div class="glass-card p-2 rounded-2xl transform rotate-3">
-                        <img src="https://images.unsplash.com/photo-1598257006626-48b0c252070d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
-                            alt="Mental Health Support" class="rounded-2xl shadow-2xl">
-                    </div>
-
-                    <!-- Tilted notification box -->
-                    <div
-                        class="absolute -bottom-6 -left-6 glass-card p-6 rounded-2xl shadow-lg w-80 transform rotate-3">
-                        <div class="flex items-center">
-                            <!-- Modern glowing status dot -->
-                            <div class="relative flex-shrink-0 mr-3">
-                                <span
-                                    class="absolute inline-flex w-5 h-5 rounded-full bg-green-400 opacity-75 animate-ping"></span>
-                                <span class="relative inline-flex w-5 h-5 rounded-full bg-green-500 shadow-lg"></span>
+                        <div class="flex mt-12 space-x-8">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold gradient-text">5K+</div>
+                                <div class="text-gray-400 mt-1">Students Helped</div>
                             </div>
-                            <p class="text-sm font-medium">
-                                Counselor available now for immediate support
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- AI Chat Support -->
-    <section class="py-16 px-4">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-3xl font-bold text-center mb-4">AI-Guided Mental Health First Aid</h2>
-            <p class="text-gray-400 text-center mb-12">Get immediate support from our AI assistant, available 24/7</p>
-            <div class="max-w-3xl mx-auto glass-card rounded-2xl p-1">
-                <div class="rounded-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/30 p-6">
-                    <div id="chat-container" class="h-80 overflow-y-auto mb-4 p-4 rounded-2xl bg-gray-900/50">
-                        <div class="flex mb-4">
-                            <div class="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center mr-3">
-                                <i class="fas fa-robot text-purple-400"></i>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold gradient-text">24/7</div>
+                                <div class="text-gray-400 mt-1">Support Available</div>
                             </div>
-                            <div class="chat-bubble p-4 max-w-xs md:max-w-md">
-                                <p class="text-gray-100">Hello! I'm here to provide support and guidance. How are you
-                                    feeling today?</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex">
-                        <input type="text" id="chat-input" placeholder="Type your message here..."
-                            class="flex-1 rounded-l-2xl p-4 bg-gray-900/50 border-r-0 text-white">
-                        <button id="send-btn" class="btn-primary px-6 rounded-r-2xl">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
-                    <div class="mt-4 grid grid-cols-2 gap-2">
-                        <button
-                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">I'm
-                            feeling anxious</button>
-                        <button
-                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">I
-                            can't sleep</button>
-                        <button
-                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">Academic
-                            stress</button>
-                        <button
-                            class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">Feeling
-                            lonely</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Resources Section -->
-    <section id="resources" class="py-16 px-4">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-3xl font-bold text-center mb-4">Mental Wellness Resources</h2>
-            <p class="text-gray-400 text-center mb-12">Explore our library of resources to support your mental health
-                journey</p>
-
-            <div class="flex space-x-2 mb-8 glass-card p-1 rounded-2xl w-max mx-auto">
-                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium active">All</button>
-                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Meditation</button>
-                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Articles</button>
-                <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Crisis</button>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="resource-card rounded-2xl p-6">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
-                        <i class="fas fa-headphones-alt text-2xl text-purple-400"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Guided Meditation</h3>
-                    <p class="text-gray-400 mb-4">Audio sessions to help reduce stress and improve focus.</p>
-                    <button class="text-purple-400 font-medium flex items-center">
-                        Listen Now <i class="fas fa-arrow-right ml-2 text-xs"></i>
-                    </button>
-                </div>
-
-                <div class="resource-card rounded-2xl p-6">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
-                        <i class="fas fa-book-open text-2xl text-purple-400"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Wellness Articles</h3>
-                    <p class="text-gray-400 mb-4">Research-based articles on managing mental health in college.</p>
-                    <button class="text-purple-400 font-medium flex items-center">
-                        Read Articles <i class="fas fa-arrow-right ml-2 text-xs"></i>
-                    </button>
-                </div>
-
-                <div class="resource-card rounded-2xl p-6">
-                    <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
-                        <i class="fas fa-first-aid text-2xl text-purple-400"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">Crisis Resources</h3>
-                    <p class="text-gray-400 mb-4">Immediate help and hotlines for urgent mental health needs.</p>
-                    <button class="text-purple-400 font-medium flex items-center">
-                        Get Help Now <i class="fas fa-arrow-right ml-2 text-xs"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Booking Section -->
-    <section id="booking" class="py-16 px-4">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-3xl font-bold text-center mb-4">Book a Confidential Appointment</h2>
-            <p class="text-gray-400 text-center mb-12">Schedule a session with our licensed professionals</p>
-
-            <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="glass-card rounded-2xl p-8">
-                    <div class="w-16 h-16 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
-                        <i class="fas fa-university text-2xl text-purple-400"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-4">On-Campus Counseling</h3>
-                    <p class="text-gray-400 mb-6">Schedule a session with our licensed campus counselors.</p>
-                    <ul class="mb-6 space-y-3">
-                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i>
-                            Completely confidential</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Free for
-                            students</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Flexible
-                            timing</li>
-                    </ul>
-                    <button class="btn-primary w-full py-3 rounded-xl font-medium">
-                        Book Now
-                    </button>
-                </div>
-
-                <div class="glass-card rounded-2xl p-8">
-                    <div class="w-16 h-16 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
-                        <i class="fas fa-phone-alt text-2xl text-purple-400"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-4">External Mental Health Helpline</h3>
-                    <p class="text-gray-400 mb-6">Connect with mental health professionals outside campus.</p>
-                    <ul class="mb-6 space-y-3">
-                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> 24/7
-                            availability</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Multiple
-                            language support</li>
-                        <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Anonymous
-                            options</li>
-                    </ul>
-                    <button class="btn-primary w-full py-3 rounded-xl font-medium">
-                        View Options
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Peer Support Forum -->
-    <section id="forum" class="py-16 px-4">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-3xl font-bold text-center mb-4">Peer Support Community</h2>
-            <p class="text-gray-400 text-center mb-12">Connect with others who understand what you're going through</p>
-
-            <div class="max-w-4xl mx-auto glass-card rounded-2xl p-8">
-                <div class="flex justify-between items-center mb-8">
-                    <h3 class="text-xl font-semibold">Recent Discussions</h3>
-                    <button class="btn-primary px-6 py-3 rounded-xl text-sm">
-                        <i class="fas fa-plus mr-2"></i> New Discussion
-                    </button>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="forum-post rounded-2xl p-6">
-                        <div class="flex items-start">
-                            <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
-                                <i class="fas fa-user text-purple-400"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold mb-2">Coping with exam stress</h4>
-                                <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 2 hours ago</p>
-                                <p class="text-gray-300 mb-4">I'm feeling overwhelmed with my finals coming up. Any tips
-                                    on managing study stress?</p>
-                                <div class="flex">
-                                    <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 12
-                                        replies</button>
-                                    <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 24
-                                        supports</button>
-                                </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold gradient-text">100%</div>
+                                <div class="text-gray-400 mt-1">Confidential</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="forum-post rounded-2xl p-6">
-                        <div class="flex items-start">
-                            <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
-                                <i class="fas fa-user text-purple-400"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold mb-2">Sleep issues</h4>
-                                <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 5 hours ago</p>
-                                <p class="text-gray-300 mb-4">I've been having trouble sleeping for the past few weeks.
-                                    Any advice?</p>
-                                <div class="flex">
-                                    <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 8
-                                        replies</button>
-                                    <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 15
-                                        supports</button>
-                                </div>
-                            </div>
+                    <div class="relative">
+                        <div class="glass-card p-2 rounded-2xl transform rotate-3">
+                            <img src="https://images.unsplash.com/photo-1598257006626-48b0c252070d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80"
+                                alt="Mental Health Support" class="rounded-2xl shadow-2xl">
                         </div>
-                    </div>
 
-                    <div class="forum-post rounded-2xl p-6">
-                        <div class="flex items-start">
-                            <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
-                                <i class="fas fa-user text-purple-400"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold mb-2">Feeling homesick</h4>
-                                <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 1 day ago</p>
-                                <p class="text-gray-300 mb-4">This is my first semester away from home and I'm really
-                                    missing my family...</p>
-                                <div class="flex">
-                                    <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 20
-                                        replies</button>
-                                    <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 32
-                                        supports</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="py-16 px-4 mt-12">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center mb-6">
+                        <!-- Tilted notification box -->
                         <div
-                            class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
-                            <i class="fas fa-brain text-white"></i>
+                            class="absolute -bottom-6 -left-6 glass-card p-6 rounded-2xl shadow-lg w-80 transform rotate-3 bg-black">
+                            <div class="flex items-center">
+                                <!-- Modern glowing status dot -->
+                                <div class="relative flex-shrink-0 mr-3">
+                                    <span
+                                        class="absolute inline-flex w-5 h-5 rounded-full bg-green-400 opacity-75 animate-ping"></span>
+                                    <span class="relative inline-flex w-5 h-5 rounded-full bg-green-500 shadow-lg"></span>
+                                </div>
+                                <p class="text-sm font-medium">
+                                    Counselor available now for immediate support
+                                </p>
+                            </div>
                         </div>
-                        <span class="ml-3 text-xl font-bold gradient-text">MindWell</span>
                     </div>
-                    <p class="text-gray-400">Providing mental health support to college students in a safe, confidential
-                        environment.</p>
                 </div>
+            </div>
+        </section>
 
-                <div>
-                    <h4 class="font-semibold mb-6">Quick Links</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#home" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
-                        <li><a href="#resources" class="text-gray-400 hover:text-white transition-colors">Resources</a>
-                        </li>
-                        <li><a href="#forum" class="text-gray-400 hover:text-white transition-colors">Community</a></li>
-                        <li><a href="#booking" class="text-gray-400 hover:text-white transition-colors">Appointments</a>
-                        </li>
-                    </ul>
+        <!-- AI Chat Support -->
+        <section class="py-16 px-4">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-4">AI-Guided Mental Health First Aid</h2>
+                <p class="text-gray-400 text-center mb-12">Get immediate support from our AI assistant, available 24/7</p>
+                <div class="max-w-3xl mx-auto glass-card rounded-2xl p-1">
+                    <div class="rounded-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/30 p-6">
+                        <div id="chat-container" class="h-80 overflow-y-auto mb-4 p-4 rounded-2xl bg-gray-900/50">
+                            <div class="flex mb-4">
+                                <div class="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center mr-3">
+                                    <i class="fas fa-robot text-purple-400"></i>
+                                </div>
+                                <div class="chat-bubble p-4 max-w-xs md:max-w-md">
+                                    <p class="text-gray-100">Hello! I'm here to provide support and guidance. How are you
+                                        feeling today?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <input type="text" id="chat-input" placeholder="Type your message here..."
+                                class="flex-1 rounded-l-2xl p-4 bg-gray-900/50 border-r-0 text-white">
+                            <button id="send-btn" class="btn-primary px-6 rounded-r-2xl">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="mt-4 grid grid-cols-2 gap-2">
+                            <button
+                                class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">I'm
+                                feeling anxious</button>
+                            <button
+                                class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">I
+                                can't sleep</button>
+                            <button
+                                class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">Academic
+                                stress</button>
+                            <button
+                                class="quick-btn glass-card text-gray-300 p-3 rounded-xl text-sm hover:bg-purple-900/30 transition-all">Feeling
+                                lonely</button>
+                        </div>
+                    </div>
                 </div>
+            </div>
+        </section>
 
-                <div>
-                    <h4 class="font-semibold mb-6">Emergency Resources</h4>
-                    <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Crisis Hotline:
-                                1-800-273-8255</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Text Line: 741741</a>
-                        </li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Emergency Services</a>
-                        </li>
-                    </ul>
-                </div>
+        <!-- Advanced Features Section -->
+        <section id="features" class="py-16 px-4">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-4">Advanced Mental Health Features</h2>
+                <p class="text-gray-400 text-center mb-12">Leveraging cutting-edge technology for better mental wellness</p>
 
-                <div>
-                    <h4 class="font-semibold mb-6">Contact Us</h4>
-                    <ul class="space-y-3">
-                        <li class="text-gray-400"><i class="fas fa-envelope mr-3 text-purple-400"></i>
-                            support@mindwell.edu</li>
-                        <li class="text-gray-400"><i class="fas fa-phone mr-3 text-purple-400"></i> (123) 456-7890</li>
-                    </ul>
-                    <div class="flex space-x-4 mt-6">
-                        <a href="#"
-                            class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
-                            <i class="fab fa-facebook-f"></i>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Virtual Reality Card -->
+                    <div class="resource-card rounded-2xl p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-blue-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-vr-cardboard text-2xl text-blue-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Virtual Reality Therapy</h3>
+                        <p class="text-gray-400 mb-4">Immerse yourself in calming environments and guided VR meditation experiences.</p>
+                        <a href="vr-therapy.html" class="text-blue-400 font-medium flex items-center">
+                            Explore VR <i class="fas fa-arrow-right ml-2 text-xs"></i>
                         </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
-                            <i class="fab fa-twitter"></i>
+                    </div>
+
+                    <!-- Computer Vision Card -->
+                    <div class="resource-card rounded-2xl p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-green-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-eye text-2xl text-green-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Computer Vision Analysis</h3>
+                        <p class="text-gray-400 mb-4">Advanced facial expression analysis to help track mood patterns and emotional changes.</p>
+                        <a href="computer-vision.html" class="text-green-400 font-medium flex items-center">
+                            Learn More <i class="fas fa-arrow-right ml-2 text-xs"></i>
                         </a>
-                        <a href="#"
-                            class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
-                            <i class="fab fa-instagram"></i>
+                    </div>
+
+                    <!-- Analytics Card -->
+                    <div class="resource-card rounded-2xl p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-chart-line text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Mental Health Analytics</h3>
+                        <p class="text-gray-400 mb-4">Track your mental wellness journey with personalized insights and progress reports.</p>
+                        <a href="analytics.html" class="text-purple-400 font-medium flex items-center">
+                            View Analytics <i class="fas fa-arrow-right ml-2 text-xs"></i>
                         </a>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-                <p>&copy; 2023 MindWell. All rights reserved.</p>
+        <!-- Resources Section -->
+        <section id="resources" class="py-16 px-4">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-4">Mental Wellness Resources</h2>
+                <p class="text-gray-400 text-center mb-12">Explore our library of resources to support your mental health
+                    journey</p>
+
+                <div class="flex space-x-2 mb-8 glass-card p-1 rounded-2xl w-max mx-auto">
+                    <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium active">All</button>
+                    <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Meditation</button>
+                    <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Articles</button>
+                    <button class="tab-button px-6 py-2 rounded-2xl text-sm font-medium">Crisis</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="resource-card rounded-2xl p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-headphones-alt text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Guided Meditation</h3>
+                        <p class="text-gray-400 mb-4">Audio sessions to help reduce stress and improve focus.</p>
+                        <button class="text-purple-400 font-medium flex items-center">
+                            Listen Now <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="resource-card rounded-2xl p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-book-open text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Wellness Articles</h3>
+                        <p class="text-gray-400 mb-4">Research-based articles on managing mental health in college.</p>
+                        <button class="text-purple-400 font-medium flex items-center">
+                            Read Articles <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="resource-card rounded-2xl p-6">
+                        <div class="w-14 h-14 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-first-aid text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3">Crisis Resources</h3>
+                        <p class="text-gray-400 mb-4">Immediate help and hotlines for urgent mental health needs.</p>
+                        <button class="text-purple-400 font-medium flex items-center">
+                            Get Help Now <i class="fas fa-arrow-right ml-2 text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Booking Section -->
+        <section id="booking" class="py-16 px-4">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-4">Book a Confidential Appointment</h2>
+                <p class="text-gray-400 text-center mb-12">Schedule a session with our licensed professionals</p>
+
+                <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="glass-card rounded-2xl p-8">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-university text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">On-Campus Counseling</h3>
+                        <p class="text-gray-400 mb-6">Schedule a session with our licensed campus counselors.</p>
+                        <ul class="mb-6 space-y-3">
+                            <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i>
+                                Completely confidential</li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Free for
+                                students</li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Flexible
+                                timing</li>
+                        </ul>
+                        <button class="btn-primary w-full py-3 rounded-xl font-medium">
+                            Book Now
+                        </button>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-8">
+                        <div class="w-16 h-16 rounded-2xl bg-purple-600/20 flex items-center justify-center mb-6">
+                            <i class="fas fa-phone-alt text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-4">External Mental Health Helpline</h3>
+                        <p class="text-gray-400 mb-6">Connect with mental health professionals outside campus.</p>
+                        <ul class="mb-6 space-y-3">
+                            <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> 24/7
+                                availability</li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Multiple
+                                language support</li>
+                            <li class="flex items-center"><i class="fas fa-check-circle text-purple-400 mr-3"></i> Anonymous
+                                options</li>
+                        </ul>
+                        <button class="btn-primary w-full py-3 rounded-xl font-medium">
+                            View Options
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Peer Support Forum -->
+        <section id="forum" class="py-16 px-4">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-3xl font-bold text-center mb-4">Peer Support Community</h2>
+                <p class="text-gray-400 text-center mb-12">Connect with others who understand what you're going through</p>
+
+                <div class="max-w-4xl mx-auto glass-card rounded-2xl p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <h3 class="text-xl font-semibold">Recent Discussions</h3>
+                        <button class="btn-primary px-6 py-3 rounded-xl text-sm">
+                            <i class="fas fa-plus mr-2"></i> New Discussion
+                        </button>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="forum-post rounded-2xl p-6">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
+                                    <i class="fas fa-user text-purple-400"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold mb-2">Coping with exam stress</h4>
+                                    <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 2 hours ago</p>
+                                    <p class="text-gray-300 mb-4">I'm feeling overwhelmed with my finals coming up. Any tips
+                                        on managing study stress?</p>
+                                    <div class="flex">
+                                        <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 12
+                                            replies</button>
+                                        <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 24
+                                            supports</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="forum-post rounded-2xl p-6">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
+                                    <i class="fas fa-user text-purple-400"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold mb-2">Sleep issues</h4>
+                                    <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 5 hours ago</p>
+                                    <p class="text-gray-300 mb-4">I've been having trouble sleeping for the past few weeks.
+                                        Any advice?</p>
+                                    <div class="flex">
+                                        <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 8
+                                            replies</button>
+                                        <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 15
+                                            supports</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="forum-post rounded-2xl p-6">
+                            <div class="flex items-start">
+                                <div class="w-12 h-12 rounded-2xl bg-purple-600/20 flex items-center justify-center mr-4">
+                                    <i class="fas fa-user text-purple-400"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-semibold mb-2">Feeling homesick</h4>
+                                    <p class="text-gray-400 text-sm mb-3">Posted by Anonymous • 1 day ago</p>
+                                    <p class="text-gray-300 mb-4">This is my first semester away from home and I'm really
+                                        missing my family...</p>
+                                    <div class="flex">
+                                        <button class="text-gray-400 text-sm mr-6"><i class="far fa-comment mr-2"></i> 20
+                                            replies</button>
+                                        <button class="text-gray-400 text-sm"><i class="far fa-heart mr-2"></i> 32
+                                            supports</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="py-16 px-4 mt-12">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div>
+                        <div class="flex items-center mb-6">
+                            <div
+                                class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
+                                <i class="fas fa-brain text-white"></i>
+                            </div>
+                            <span class="ml-3 text-xl font-bold gradient-text">MindWell</span>
+                        </div>
+                        <p class="text-gray-400">Providing mental health support to college students in a safe, confidential
+                            environment.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold mb-6">Quick Links</h4>
+                        <ul class="space-y-3">
+                            <li><a href="#home" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                            <li><a href="#resources" class="text-gray-400 hover:text-white transition-colors">Resources</a>
+                            </li>
+                            <li><a href="#forum" class="text-gray-400 hover:text-white transition-colors">Community</a></li>
+                            <li><a href="#booking" class="text-gray-400 hover:text-white transition-colors">Appointments</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold mb-6">Emergency Resources</h4>
+                        <ul class="space-y-3">
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Crisis Hotline:
+                                    1-800-273-8255</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Text Line: 741741</a>
+                            </li>
+                            <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Emergency Services</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="font-semibold mb-6">Contact Us</h4>
+                        <ul class="space-y-3">
+                            <li class="text-gray-400"><i class="fas fa-envelope mr-3 text-purple-400"></i>
+                                support@mindwell.edu</li>
+                            <li class="text-gray-400"><i class="fas fa-phone mr-3 text-purple-400"></i> (123) 456-7890</li>
+                        </ul>
+                        <div class="flex space-x-4 mt-6">
+                            <a href="#"
+                                class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#"
+                                class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#"
+                                class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-purple-600 transition-colors">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
+                    <p>&copy; 2023 MindWell. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- User Profile Page -->
+    <div id="user-page" class="user-page">
+        <div class="max-w-4xl mx-auto px-4 py-20">
+            <div class="glass-card rounded-2xl p-8">
+                <div class="flex items-center justify-between mb-8">
+                    <h1 class="text-3xl font-bold gradient-text">User Profile</h1>
+                    <button id="back-to-main" class="btn-primary px-4 py-2 rounded-md text-sm">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Home
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                    <div class="md:col-span-1">
+                        <div class="flex flex-col items-center">
+                            <div class="w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center mb-4">
+                                <i class="fas fa-user text-white text-5xl"></i>
+                            </div>
+                            <h2 id="user-name" class="text-xl font-semibold mb-2">User Name</h2>
+                            <p id="user-email" class="text-gray-400">user@example.com</p>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <div class="glass-card rounded-2xl p-6 mb-6">
+                            <h3 class="text-xl font-semibold mb-4">Personal Information</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="text-gray-400 text-sm">Full Name</label>
+                                    <p id="profile-fullname" class="font-medium">Not set</p>
+                                </div>
+                                <div>
+                                    <label class="text-gray-400 text-sm">Age</label>
+                                    <p id="profile-age" class="font-medium">Not set</p>
+                                </div>
+                                <div>
+                                    <label class="text-gray-400 text-sm">Student ID</label>
+                                    <p id="profile-studentid" class="font-medium">Not set</p>
+                                </div>
+                                <div>
+                                    <label class="text-gray-400 text-sm">Member Since</label>
+                                    <p id="profile-joindate" class="font-medium">Not set</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-semibold mb-4">Wellness Statistics</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                                <div>
+                                    <div class="text-2xl font-bold gradient-text">12</div>
+                                    <div class="text-gray-400 text-sm">Sessions</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold gradient-text">85%</div>
+                                    <div class="text-gray-400 text-sm">Progress</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold gradient-text">7</div>
+                                    <div class="text-gray-400 text-sm">Goals Met</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold gradient-text">14</div>
+                                    <div class="text-gray-400 text-sm">Days Streak</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-xl font-semibold mb-4">Recent Activity</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-purple-600/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-comment text-purple-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Chat session with AI Assistant</p>
+                                <p class="text-gray-400 text-sm">30 minutes ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-blue-600/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-vr-cardboard text-blue-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Completed VR meditation</p>
+                                <p class="text-gray-400 text-sm">2 days ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-green-600/20 flex items-center justify-center mr-4">
+                                <i class="fas fa-chart-line text-green-400"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium">Viewed wellness analytics</p>
+                                <p class="text-gray-400 text-sm">3 days ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+    </div>
 
     <!-- Auth Modal -->
     <div id="auth-modal" class="modal hidden">
@@ -629,6 +858,17 @@
             const modalTitle = document.getElementById('modal-title');
             const googleLoginBtn = document.getElementById('google-login');
             const googleSignupBtn = document.getElementById('google-signup');
+            const profileIcon = document.getElementById('profile-icon');
+            const profileBtn = document.getElementById('profile-btn');
+            const profileDropdown = document.getElementById('profile-dropdown');
+            const authButtons = document.getElementById('auth-buttons');
+            const viewProfileLink = document.getElementById('view-profile-link');
+            const logoutBtn = document.getElementById('logout-btn');
+            const userPage = document.getElementById('user-page');
+            const mainContent = document.querySelector('.main-content');
+            const backToMain = document.getElementById('back-to-main');
+            const userName = document.getElementById('user-name');
+            const userEmail = document.getElementById('user-email');
 
             const chatContainer = document.getElementById('chat-container');
             const chatInput = document.getElementById('chat-input');
@@ -636,6 +876,40 @@
             const quickBtns = document.querySelectorAll('.quick-btn');
 
             const tabButtons = document.querySelectorAll('.tab-button');
+
+            // Check if user is logged in
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // User is signed in
+                    authButtons.classList.add('hidden');
+                    profileIcon.classList.remove('hidden');
+                    
+                    // Update user info
+                    userName.textContent = user.displayName || user.email.split('@')[0];
+                    userEmail.textContent = user.email;
+                    
+                    // Get additional user data from Firestore
+                    db.collection('users').doc(user.uid).get().then((doc) => {
+                        if (doc.exists) {
+                            const userData = doc.data();
+                            document.getElementById('profile-fullname').textContent = userData.fullName || 'Not set';
+                            document.getElementById('profile-age').textContent = userData.age || 'Not set';
+                            document.getElementById('profile-studentid').textContent = userData.studentId || 'Not set';
+                            
+                            if (userData.joinDate) {
+                                const joinDate = userData.joinDate.toDate();
+                                document.getElementById('profile-joindate').textContent = joinDate.toLocaleDateString();
+                            } else {
+                                document.getElementById('profile-joindate').textContent = 'Not set';
+                            }
+                        }
+                    });
+                } else {
+                    // User is signed out
+                    authButtons.classList.remove('hidden');
+                    profileIcon.classList.add('hidden');
+                }
+            });
 
             // Modal functionality
             function openModal() {
@@ -684,6 +958,43 @@
 
             switchToSignup.addEventListener('click', showSignupForm);
             switchToLogin.addEventListener('click', showLoginForm);
+
+            // Profile dropdown
+            profileBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!profileBtn.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.remove('active');
+                }
+            });
+
+            // View profile
+            viewProfileLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                profileDropdown.classList.remove('active');
+                mainContent.classList.add('hidden');
+                userPage.classList.add('active');
+            });
+
+            // Back to main
+            backToMain.addEventListener('click', () => {
+                userPage.classList.remove('active');
+                mainContent.classList.remove('hidden');
+            });
+
+            // Logout
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                auth.signOut().then(() => {
+                    profileDropdown.classList.remove('active');
+                    userPage.classList.remove('active');
+                    mainContent.classList.remove('hidden');
+                });
+            });
 
             // Tab buttons
             tabButtons.forEach(button => {
@@ -811,7 +1122,6 @@
                 auth.signInWithEmailAndPassword(email, password)
                     .then((userCredential) => {
                         closeModalFunc();
-                        alert('Successfully logged in!');
                     })
                     .catch((error) => {
                         alert('Error: ' + error.message);
@@ -825,8 +1135,16 @@
 
                 auth.createUserWithEmailAndPassword(email, password)
                     .then((userCredential) => {
+                        // Create user document in Firestore
+                        const user = userCredential.user;
+                        return db.collection('users').doc(user.uid).set({
+                            email: user.email,
+                            joinDate: new Date(),
+                            lastLogin: new Date()
+                        });
+                    })
+                    .then(() => {
                         closeModalFunc();
-                        alert('Account created successfully!');
                     })
                     .catch((error) => {
                         alert('Error: ' + error.message);
@@ -839,8 +1157,26 @@
             googleLoginBtn.addEventListener('click', function () {
                 auth.signInWithPopup(googleProvider)
                     .then((result) => {
+                        const user = result.user;
+                        
+                        // Check if user document exists, if not create one
+                        const userRef = db.collection('users').doc(user.uid);
+                        userRef.get().then((doc) => {
+                            if (!doc.exists) {
+                                userRef.set({
+                                    email: user.email,
+                                    fullName: user.displayName,
+                                    joinDate: new Date(),
+                                    lastLogin: new Date()
+                                });
+                            } else {
+                                userRef.update({
+                                    lastLogin: new Date()
+                                });
+                            }
+                        });
+                        
                         closeModalFunc();
-                        alert('Successfully logged in with Google!');
                     })
                     .catch((error) => {
                         alert('Error: ' + error.message);
@@ -850,8 +1186,17 @@
             googleSignupBtn.addEventListener('click', function () {
                 auth.signInWithPopup(googleProvider)
                     .then((result) => {
+                        const user = result.user;
+                        
+                        // Create user document in Firestore
+                        db.collection('users').doc(user.uid).set({
+                            email: user.email,
+                            fullName: user.displayName,
+                            joinDate: new Date(),
+                            lastLogin: new Date()
+                        });
+                        
                         closeModalFunc();
-                        alert('Successfully signed up with Google!');
                     })
                     .catch((error) => {
                         alert('Error: ' + error.message);
