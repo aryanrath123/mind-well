@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroPop - AR Stress Relief</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Orbitron:wght@500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">Neuro<span>Pop</span></h1>
+            <div class="nav">
+                <button class="nav-btn active">Game</button>
+                <button class="nav-btn">About</button>
+                <button class="nav-btn">Settings</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="game-container" id="gameArea">
+                <div class="hud">
+                    <div class="hud-item">
+                        <i class="fas fa-clock"></i>
+                        <span id="timer">30</span>s
+                    </div>
+                    <div class="hud-item">
+                        <i class="fas fa-star"></i>
+                        <span id="score">0</span>
+                    </div>
+                    <div class="hud-item">
+                        <i class="fas fa-volume-up" id="soundToggle"></i>
+                    </div>
+                </div>
+
+                <div class="ar-marker-sim">
+                    <div class="marker"></div>
+                    <p>AR Marker Area</p>
+                </div>
+
+                <div class="message-container" id="messageContainer"></div>
+            </div>
+
+            <div class="controls">
+                <button id="startButton" class="start-btn">
+                    <i class="fas fa-play"></i>
+                    Start Experience
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-panel">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-bubble"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>124</h3>
+                    <p>Bubbles Popped</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>12m</h3>
+                    <p>Time Played</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>8</h3>
+                    <p>Achievements</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio elements for sound effects with proper sources -->
+    <audio id="popSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-bubble-pop-up-3006.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="startSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-show-intro-331.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="messageSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-magic-sparkle-3021.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="endSound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-game-level-completed-2059.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bgMusic" preload="auto" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-spooky-ambience-532.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // DOM elements
+            const gameArea = document.getElementById('gameArea');
+            const timerElement = document.getElementById('timer');
+            const scoreElement = document.getElementById('score');
+            const startButton = document.getElementById('startButton');
+            const messageContainer = document.getElementById('messageContainer');
+            const soundToggle = document.getElementById('soundToggle');
+
+            // Audio elements
+            const popSound = document.getElementById('popSound');
+            const startSound = document.getElementById('startSound');
+            const messageSound = document.getElementById('messageSound');
+            const endSound = document.getElementById('endSound');
+            const bgMusic = document.getElementById('bgMusic');
+
+            // Game state
+            let score = 0;
+            let timeLeft = 30;
+            let gameInterval;
+            let bubbleInterval;
+            let isSoundOn = true;
+            let audioContext;
+
+            // Check if audio is supported and handle errors
+            function setupAudio() {
+                // Try to play a sound to check if audio is working
+                try {
+                    // Create fallback oscillator sounds if HTML5 audio fails
+                    if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+                        audioContext = new (AudioContext || webkitAudioContext)();
+                    }
+
+                    // Test if the audio elements have valid sources
+                    if (popSound.src === "" || popSound.src === window.location.href) {
+                        console.log("Using fallback audio sounds");
+                    }
+                } catch (e) {
+                    console.log("Audio context not supported:", e);
+                }
+            }
+
+            // Play a sound with fallback to Web Audio API if HTML5 audio fails
+            function playSound(audioElement, type) {
+                if (!isSoundOn) return;
+
+                try {
+                    if (audioElement.src && audioElement.src !== window.location.href) {
+                        audioElement.currentTime = 0;
+                        audioElement.play().catch(e => {
+                            console.log("HTML5 audio play failed, using fallback:", e);
+                            playFallbackSound(type);
+                        });
+                    } else {
+                        playFallbackSound(type);
+                    }
+                } catch (e) {
+                    console.log("Audio play error:", e);
+                    playFallbackSound(type);
+                }
+            }
+
+            // Fallback sound using Web Audio API
+            function playFallbackSound(type) {
+                if (!audioContext) return;
+
+                try {
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    switch (type) {
+                        case 'pop':
+                            oscillator.type = 'sine';
+                            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                            oscillator.frequency.exponentialRampToValueAtTime(1046.5, audioContext.currentTime + 0.1); // C6
+                            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                            break;
+                        case 'message':
+                            oscillator.type = 'sine';
+                            oscillator.frequency.setValueAtTime(659.25, audioContext.currentTime); // E5
+                            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                            break;
+                        case 'start':
+                            oscillator.type = 'sine';
+                            oscillator.frequency.setValueAtTime(392.00, audioContext.currentTime); // G4
+                            oscillator.frequency.exponentialRampToValueAtTime(783.99, audioContext.currentTime + 0.5); // G5
+                            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.6);
+                            break;
+                        case 'end':
+                            oscillator.type = 'sine';
+                            const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+                            let time = audioContext.currentTime;
+                            gainNode.gain.setValueAtTime(0.3, time);
+
+                            notes.forEach((freq, i) => {
+                                oscillator.frequency.setValueAtTime(freq, time);
+                                time += 0.2;
+                            });
+
+                            gainNode.gain.exponentialRampToValueAtTime(0.01, time);
+                            break;
+                    }
+
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.5);
+                } catch (e) {
+                    console.log("Web Audio API error:", e);
+                }
+            }
+
+            // Toggle sound
+            soundToggle.addEventListener('click', function () {
+                isSoundOn = !isSoundOn;
+                if (isSoundOn) {
+                    soundToggle.classList.remove('fa-volume-mute');
+                    soundToggle.classList.add('fa-volume-up');
+                    if (bgMusic.src && bgMusic.src !== window.location.href) {
+                        bgMusic.play().catch(e => console.log("Background music play failed:", e));
+                    }
+                } else {
+                    soundToggle.classList.remove('fa-volume-up');
+                    soundToggle.classList.add('fa-volume-mute');
+                    bgMusic.pause();
+                }
+            });
+
+            // Create a bubble at a random position
+            function createBubble() {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+
+                // Random size between 30 and 70 pixels
+                const size = Math.floor(Math.random() * 41) + 30;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+
+                // Random position within game area
+                const maxX = gameArea.offsetWidth - size;
+                const maxY = gameArea.offsetHeight - size;
+                const x = Math.floor(Math.random() * maxX);
+                const y = Math.floor(Math.random() * maxY);
+
+                bubble.style.left = `${x}px`;
+                bubble.style.top = `${y}px`;
+
+                // Random color from modern palette
+                const colors = [
+                    'rgba(106, 137, 204, 0.8)', // Soft blue
+                    'rgba(120, 220, 182, 0.8)', // Mint green
+                    'rgba(231, 144, 209, 0.8)', // Pink
+                    'rgba(245, 176, 65, 0.8)',  // Orange
+                    'rgba(162, 155, 254, 0.8)'  // Purple
+                ];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                bubble.style.backgroundColor = color;
+                bubble.style.boxShadow = `0 0 15px ${color.replace('0.8', '0.6')}`;
+
+                // Add bubble to game area
+                gameArea.appendChild(bubble);
+
+                // Add floating animation with random parameters
+                const floatDuration = 5 + Math.random() * 5;
+                const floatAmplitude = 10 + Math.random() * 20;
+                bubble.style.animation = `float ${floatDuration}s infinite ease-in-out`;
+                bubble.style.setProperty('--float-amplitude', `${floatAmplitude}px`);
+
+                // Pop bubble on click
+                bubble.addEventListener('click', function () {
+                    // Increase score
+                    score++;
+                    scoreElement.textContent = score;
+
+                    // Play pop sound
+                    playSound(popSound, 'pop');
+
+                    // Show motivational message
+                    showMessage(bubble);
+
+                    // Remove bubble with popping animation
+                    bubble.style.transform = 'scale(1.5)';
+                    bubble.style.opacity = '0';
+                    setTimeout(() => {
+                        if (bubble.parentNode === gameArea) {
+                            gameArea.removeChild(bubble);
+                        }
+                    }, 300);
+                });
+
+                // Remove bubble after some time if not popped
+                setTimeout(() => {
+                    if (bubble.parentNode === gameArea) {
+                        bubble.style.opacity = '0';
+                        setTimeout(() => {
+                            if (bubble.parentNode === gameArea) {
+                                gameArea.removeChild(bubble);
+                            }
+                        }, 1000);
+                    }
+                }, 6000);
+            }
+
+            // Show motivational message at bubble position
+            function showMessage(bubble) {
+                const message = document.createElement('div');
+                message.className = 'message';
+                message.textContent = messages[Math.floor(Math.random() * messages.length)];
+
+                const bubbleRect = bubble.getBoundingClientRect();
+                const gameRect = gameArea.getBoundingClientRect();
+
+                message.style.left = `${bubbleRect.left - gameRect.left + bubble.offsetWidth / 2}px`;
+                message.style.top = `${bubbleRect.top - gameRect.top}px`;
+
+                messageContainer.appendChild(message);
+
+                // Play message sound
+                playSound(messageSound, 'message');
+
+                // Remove message after animation completes
+                setTimeout(() => {
+                    if (message.parentNode === messageContainer) {
+                        messageContainer.removeChild(message);
+                    }
+                }, 2000);
+            }
+
+            // Start the game
+            function startGame() {
+                // Reset game state
+                score = 0;
+                timeLeft = 30;
+                scoreElement.textContent = score;
+                timerElement.textContent = timeLeft;
+
+                // Clear any existing bubbles and messages
+                const bubbles = document.querySelectorAll('.bubble');
+                bubbles.forEach(bubble => bubble.remove());
+
+                const messages = document.querySelectorAll('.message');
+                messages.forEach(message => message.remove());
+
+                // Disable start button during game
+                startButton.disabled = true;
+                startButton.innerHTML = '<i class="fas fa-sync-alt"></i> Playing...';
+
+                // Play start sound
+                playSound(startSound, 'start');
+
+                if (isSoundOn && bgMusic.src && bgMusic.src !== window.location.href) {
+                    bgMusic.play().catch(e => console.log("Background music play failed:", e));
+                }
+
+                // Start timers
+                gameInterval = setInterval(() => {
+                    timeLeft--;
+                    timerElement.textContent = timeLeft;
+
+                    if (timeLeft <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+
+                bubbleInterval = setInterval(createBubble, 600);
+
+                // Create initial bubbles
+                for (let i = 0; i < 5; i++) {
+                    createBubble();
+                }
+            }
+
+            // End the game
+            function endGame() {
+                clearInterval(gameInterval);
+                clearInterval(bubbleInterval);
+
+                // Remove all bubbles
+                const bubbles = document.querySelectorAll('.bubble');
+                bubbles.forEach(bubble => bubble.remove());
+
+                // Play end sound
+                playSound(endSound, 'end');
+
+                if (bgMusic.src && bgMusic.src !== window.location.href) {
+                    bgMusic.pause();
+                    bgMusic.currentTime = 0;
+                }
+
+                // Show game over message
+                const gameOver = document.createElement('div');
+                gameOver.className = 'game-over';
+                gameOver.innerHTML = `
+                    <h2>Session Complete!</h2>
+                    <p>You popped ${score} bubbles</p>
+                    <div class="achievement">Mental Wellness +${score * 5}</div>
+                `;
+
+                gameArea.appendChild(gameOver);
+
+                // Re-enable start button after delay
+                setTimeout(() => {
+                    gameArea.removeChild(gameOver);
+                    startButton.disabled = false;
+                    startButton.innerHTML = '<i class="fas fa-play"></i> Start Again';
+                }, 4000);
+            }
+
+            // Initialize audio and start button
+            setupAudio();
+
+            // Start game when button is clicked
+            startButton.addEventListener('click', startGame);
+
+            // Motivational messages
+            const messages = [
+                "You've got this!",
+                "Take a deep breath!",
+                "You are capable of amazing things!",
+                "This too shall pass!",
+                "You matter!",
+                "Progress, not perfection!",
+                "Be kind to yourself today!",
+                "You are enough!",
+                "One step at a time!",
+                "You're doing great!",
+                "Your mind is powerful!",
+                "You're stronger than you think!",
+                "Keep moving forward!",
+                "You deserve happiness!",
+                "Believe in yourself!"
+            ];
+        });
+    </script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 2.2rem;
+            background: linear-gradient(90deg, #818cf8 0%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(97, 140, 248, 0.3);
+        }
+
+        .logo span {
+            color: #60a5fa;
+            -webkit-text-fill-color: #60a5fa;
+        }
+
+        .nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            background: rgba(30, 41, 59, 0.6);
+            color: #cbd5e1;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-btn:hover,
+        .nav-btn.active {
+            background: linear-gradient(90deg, #818cf8 0%, #60a5fa 100%);
+            color: white;
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.4);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .game-container {
+            position: relative;
+            height: 450px;
+            background: radial-gradient(circle at center, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 15px;
+        }
+
+        .hud-item {
+            background: rgba(15, 23, 42, 0.7);
+            padding: 10px 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .hud-item i {
+            color: #60a5fa;
+        }
+
+        #soundToggle {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #soundToggle:hover {
+            color: #818cf8;
+            transform: scale(1.1);
+        }
+
+        .ar-marker-sim {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .marker {
+            width: 180px;
+            height: 180px;
+            background: rgba(30, 41, 59, 0.9);
+            border: 3px dashed #60a5fa;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.3);
+        }
+
+        .marker:before {
+            content: '';
+            width: 80%;
+            height: 80%;
+            border: 2px solid #818cf8;
+            border-radius: 6px;
+            opacity: 0.7;
+        }
+
+        .ar-marker-sim p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), transparent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: bold;
+            user-select: none;
+            cursor: pointer;
+            transform-origin: center;
+            transition: transform 0.2s ease;
+        }
+
+        .bubble:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            25% {
+                transform: translateY(calc(-1 * var(--float-amplitude))) rotate(3deg);
+            }
+
+            50% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            75% {
+                transform: translateY(var(--float-amplitude)) rotate(-3deg);
+            }
+        }
+
+        .message-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .message {
+            position: absolute;
+            color: #60a5fa;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.8);
+            animation: fadeUp 2s forwards;
+            font-size: 1.2rem;
+            white-space: nowrap;
+        }
+
+        @keyframes fadeUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-80px);
+            }
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .start-btn {
+            background: linear-gradient(90deg, #818cf8 0%, #60a5fa 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(96, 165, 250, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0 auto;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(96, 165, 250, 0.6);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .stats-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 0 30px 30px;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.7);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #818cf8 0%, #60a5fa 100%);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #e0e7ff 0%, #bfdbfe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-info p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.9);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            box-shadow: 0 0 40px rgba(96, 165, 250, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(96, 165, 250, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 50px rgba(96, 165, 250, 0.5);
+            }
+        }
+
+        .game-over h2 {
+            margin-bottom: 10px;
+            color: #e0e7ff;
+        }
+
+        .game-over p {
+            margin-bottom: 15px;
+            color: #cbd5e1;
+        }
+
+        .achievement {
+            display: inline-block;
+            background: linear-gradient(90deg, #818cf8 0%, #60a5fa 100%);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                border-radius: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .nav {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .nav-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .game-container {
+                height: 350px;
+                margin-bottom: 20px;
+            }
+
+            .hud {
+                top: 15px;
+                left: 15px;
+                gap: 10px;
+            }
+
+            .hud-item {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+
+            .marker {
+                width: 140px;
+                height: 140px;
+            }
+
+            .ar-marker-sim p {
+                font-size: 0.8rem;
+            }
+
+            .start-btn {
+                padding: 12px 24px;
+                font-size: 1rem;
+            }
+
+            .stats-panel {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 0 20px 20px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .stat-info h3 {
+                font-size: 1.5rem;
+            }
+
+            .stat-info p {
+                font-size: 0.85rem;
+            }
+
+            .game-over {
+                padding: 20px;
+                width: 85%;
+            }
+
+            .game-over h2 {
+                font-size: 1.3rem;
+            }
+
+            .game-over p {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 12px 15px;
+            }
+
+            .logo {
+                font-size: 1.6rem;
+            }
+
+            .nav {
+                flex-wrap: wrap;
+            }
+
+            .nav-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+
+            .main-content {
+                padding: 15px;
+            }
+
+            .game-container {
+                height: 300px;
+            }
+
+            .hud {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .marker {
+                width: 120px;
+                height: 120px;
+            }
+
+            .message {
+                font-size: 1rem;
+            }
+
+            .start-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-panel {
+                padding: 0 15px 15px;
+            }
+
+            .stat-card {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .game-over {
+                padding: 15px;
+            }
+
+            .game-over h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</body>
+
+</html>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psychological Screening Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #fff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .assessment-options {
+            display: flex;
+            justify-content: center;
+            /* center horizontally */
+            align-items: stretch;
+            /* make equal height */
+            gap: 20px;
+            /* spacing between cards */
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .assessment-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            width: 280px;
+            /* fixed width for alignment */
+            flex: 1;
+            /* make them flexible */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .assessment-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .assessment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #6a11cb;
+        }
+
+        .assessment-name {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .assessment-desc {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .start-btn {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background: linear-gradient(45deg, #6a11cb, #2575fc, #6a11cb);
+            transform: scale(1.05);
+        }
+
+        .assessment-container {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .option {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .option.selected {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(45deg, #00b09b, #96c93d, #00b09b);
+            transform: translateY(-2px);
+        }
+
+        .result-container {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .score {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: #fdbb2d;
+        }
+
+        .interpretation {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .restart-btn {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: linear-gradient(45deg, #6a11cb, #2575fc, #6a11cb);
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .assessment-options {
+                grid-template-columns: 1fr;
+            }
+
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Psychological Screening Tools</h1>
+            <p class="description">Take a quick assessment to better understand your mental health needs</p>
+        </header>
+
+        <div class="assessment-options">
+            <div class="assessment-card" data-assessment="phq9">
+                <div class="assessment-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3 class="assessment-name">PHQ-9</h3>
+                <p class="assessment-desc">Measures depression severity with 9 questions</p>
+                <button class="start-btn">Start Assessment</button>
+            </div>
+
+            <div class="assessment-card" data-assessment="gad7">
+                <div class="assessment-icon">
+                    <i class="fas fa-stethoscope"></i>
+                </div>
+                <h3 class="assessment-name">GAD-7</h3>
+                <p class="assessment-desc">Assesses anxiety levels with 7 questions</p>
+                <button class="start-btn">Start Assessment</button>
+            </div>
+
+            <div class="assessment-card" data-assessment="ghq12">
+                <div class="assessment-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 class="assessment-name">GHQ-12</h3>
+                <p class="assessment-desc">General health questionnaire with 12 items</p>
+                <button class="start-btn">Start Assessment</button>
+            </div>
+        </div>
+
+        <!-- PHQ-9 Assessment -->
+        <div class="assessment-container" id="phq9-assessment">
+            <div class="assessment-header">
+                <h2>PHQ-9 Depression Assessment</h2>
+                <button class="back-btn" data-assessment="phq9"><i class="fas fa-arrow-left"></i> Back</button>
+            </div>
+            <div id="phq9-questions">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+            <button class="submit-btn" id="phq9-submit">Submit Assessment</button>
+        </div>
+
+        <!-- GAD-7 Assessment -->
+        <div class="assessment-container" id="gad7-assessment">
+            <div class="assessment-header">
+                <h2>GAD-7 Anxiety Assessment</h2>
+                <button class="back-btn" data-assessment="gad7"><i class="fas fa-arrow-left"></i> Back</button>
+            </div>
+            <div id="gad7-questions">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+            <button class="submit-btn" id="gad7-submit">Submit Assessment</button>
+        </div>
+
+        <!-- GHQ-12 Assessment -->
+        <div class="assessment-container" id="ghq12-assessment">
+            <div class="assessment-header">
+                <h2>GHQ-12 General Health Assessment</h2>
+                <button class="back-btn" data-assessment="ghq12"><i class="fas fa-arrow-left"></i> Back</button>
+            </div>
+            <div id="ghq12-questions">
+                <!-- Questions will be inserted here by JavaScript -->
+            </div>
+            <button class="submit-btn" id="ghq12-submit">Submit Assessment</button>
+        </div>
+
+        <!-- Results Containers -->
+        <div class="result-container" id="phq9-result">
+            <h2>PHQ-9 Assessment Results</h2>
+            <div class="score" id="phq9-score"></div>
+            <div class="interpretation" id="phq9-interpretation"></div>
+            <button class="restart-btn" data-assessment="phq9">Take Again</button>
+        </div>
+
+        <div class="result-container" id="gad7-result">
+            <h2>GAD-7 Assessment Results</h2>
+            <div class="score" id="gad7-score"></div>
+            <div class="interpretation" id="gad7-interpretation"></div>
+            <button class="restart-btn" data-assessment="gad7">Take Again</button>
+        </div>
+
+        <div class="result-container" id="ghq12-result">
+            <h2>GHQ-12 Assessment Results</h2>
+            <div class="score" id="ghq12-score"></div>
+            <div class="interpretation" id="ghq12-interpretation"></div>
+            <button class="restart-btn" data-assessment="ghq12">Take Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Assessment data
+        const assessments = {
+            phq9: {
+                title: "PHQ-9 Depression Assessment",
+                questions: [
+                    "Little interest or pleasure in doing things",
+                    "Feeling down, depressed, or hopeless",
+                    "Trouble falling or staying asleep, or sleeping too much",
+                    "Feeling tired or having little energy",
+                    "Poor appetite or overeating",
+                    "Feeling bad about yourself — or that you are a failure or have let yourself or your family down",
+                    "Trouble concentrating on things, such as reading the newspaper or watching television",
+                    "Moving or speaking so slowly that other people could have noticed? Or the opposite — being so fidgety or restless that you have been moving around a lot more than usual",
+                    "Thoughts that you would be better off dead or of hurting yourself in some way"
+                ],
+                options: [
+                    "Not at all (0 points)",
+                    "Several days (1 point)",
+                    "More than half the days (2 points)",
+                    "Nearly every day (3 points)"
+                ],
+                scoring: [0, 1, 2, 3],
+                interpretations: [
+                    { min: 0, max: 4, text: "Minimal depression. Your score suggests you may not be experiencing significant symptoms of depression at this time." },
+                    { min: 5, max: 9, text: "Mild depression. You may be experiencing some symptoms of depression. Consider monitoring your mood and seeking support if symptoms persist." },
+                    { min: 10, max: 14, text: "Moderate depression. Your symptoms are consistent with moderate depression. It may be beneficial to consult with a mental health professional." },
+                    { min: 15, max: 19, text: "Moderately severe depression. Your score suggests significant depressive symptoms. Consulting with a mental health professional is recommended." },
+                    { min: 20, max: 27, text: "Severe depression. Your score indicates severe depressive symptoms. It's important to seek help from a mental health professional as soon as possible." }
+                ]
+            },
+            gad7: {
+                title: "GAD-7 Anxiety Assessment",
+                questions: [
+                    "Feeling nervous, anxious, or on edge",
+                    "Not being able to stop or control worrying",
+                    "Worrying too much about different things",
+                    "Trouble relaxing",
+                    "Being so restless that it is hard to sit still",
+                    "Becoming easily annoyed or irritable",
+                    "Feeling afraid as if something awful might happen"
+                ],
+                options: [
+                    "Not at all (0 points)",
+                    "Several days (1 point)",
+                    "More than half the days (2 points)",
+                    "Nearly every day (3 points)"
+                ],
+                scoring: [0, 1, 2, 3],
+                interpretations: [
+                    { min: 0, max: 4, text: "Minimal anxiety. Your score suggests you may not be experiencing significant symptoms of anxiety at this time." },
+                    { min: 5, max: 9, text: "Mild anxiety. You may be experiencing some symptoms of anxiety. Consider monitoring your symptoms and seeking support if they persist." },
+                    { min: 10, max: 14, text: "Moderate anxiety. Your symptoms are consistent with moderate anxiety. It may be beneficial to consult with a mental health professional." },
+                    { min: 15, max: 21, text: "Severe anxiety. Your score suggests significant anxiety symptoms. Consulting with a mental health professional is recommended." }
+                ]
+            },
+            ghq12: {
+                title: "GHQ-12 General Health Assessment",
+                questions: [
+                    "Been able to concentrate on whatever you're doing",
+                    "Lost much sleep over worry",
+                    "Felt that you are playing a useful part in things",
+                    "Felt capable of making decisions about things",
+                    "Felt constantly under strain",
+                    "Felt you couldn't overcome your difficulties",
+                    "Been able to enjoy your normal day-to-day activities",
+                    "Been able to face up to your problems",
+                    "Been feeling unhappy and depressed",
+                    "Been losing confidence in yourself",
+                    "Been thinking of yourself as a worthless person",
+                    "Been feeling reasonably happy, all things considered"
+                ],
+                options: [
+                    "Better than usual (0 points)",
+                    "Same as usual (0 points)",
+                    "Less than usual (1 point)",
+                    "Much less than usual (1 point)"
+                ],
+                scoring: [0, 0, 1, 1],
+                interpretations: [
+                    { min: 0, max: 3, text: "Low level of psychological distress. Your score suggests you're coping well overall." },
+                    { min: 4, max: 7, text: "Mild psychological distress. You may be experiencing some difficulties. Consider monitoring your well-being." },
+                    { min: 8, max: 12, text: "Moderate to severe psychological distress. Your score suggests you may be experiencing significant difficulties. Consulting with a mental health professional could be beneficial." }
+                ]
+            }
+        };
+
+        // Initialize the assessments
+        document.addEventListener('DOMContentLoaded', function () {
+            // Set up assessment cards
+            document.querySelectorAll('.assessment-card').forEach(card => {
+                const assessmentType = card.getAttribute('data-assessment');
+                card.querySelector('.start-btn').addEventListener('click', () => {
+                    showAssessment(assessmentType);
+                });
+            });
+
+            // Set up back buttons
+            document.querySelectorAll('.back-btn').forEach(btn => {
+                const assessmentType = btn.getAttribute('data-assessment');
+                btn.addEventListener('click', () => {
+                    hideAllAssessments();
+                });
+            });
+
+            // Set up submit buttons
+            document.getElementById('phq9-submit').addEventListener('click', () => calculateScore('phq9'));
+            document.getElementById('gad7-submit').addEventListener('click', () => calculateScore('gad7'));
+            document.getElementById('ghq12-submit').addEventListener('click', () => calculateScore('ghq12'));
+
+            // Set up restart buttons
+            document.querySelectorAll('.restart-btn').forEach(btn => {
+                const assessmentType = btn.getAttribute('data-assessment');
+                btn.addEventListener('click', () => {
+                    showAssessment(assessmentType);
+                });
+            });
+
+            // Render questions for all assessments
+            renderQuestions('phq9');
+            renderQuestions('gad7');
+            renderQuestions('ghq12');
+        });
+
+        // Function to render questions for an assessment
+        function renderQuestions(assessmentType) {
+            const assessment = assessments[assessmentType];
+            const questionsContainer = document.getElementById(`${assessmentType}-questions`);
+            questionsContainer.innerHTML = '';
+
+            assessment.questions.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'question';
+
+                const questionText = document.createElement('div');
+                questionText.className = 'question-text';
+                questionText.textContent = `${index + 1}. ${question}`;
+                questionElement.appendChild(questionText);
+
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'options';
+
+                assessment.options.forEach((option, optionIndex) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.className = 'option';
+                    optionElement.textContent = option;
+                    optionElement.setAttribute('data-value', assessment.scoring[optionIndex]);
+                    optionElement.setAttribute('data-question', index);
+
+                    optionElement.addEventListener('click', function () {
+                        // Remove selected class from all options in this question
+                        this.parentElement.querySelectorAll('.option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+
+                        // Add selected class to clicked option
+                        this.classList.add('selected');
+                    });
+
+                    optionsContainer.appendChild(optionElement);
+                });
+
+                questionElement.appendChild(optionsContainer);
+                questionsContainer.appendChild(questionElement);
+            });
+        }
+
+        // Function to show an assessment
+        function showAssessment(assessmentType) {
+            hideAllAssessments();
+            hideAllResults();
+            document.getElementById(`${assessmentType}-assessment`).style.display = 'block';
+        }
+
+        // Function to hide all assessments
+        function hideAllAssessments() {
+            document.querySelectorAll('.assessment-container').forEach(container => {
+                container.style.display = 'none';
+            });
+        }
+
+        // Function to hide all results
+        function hideAllResults() {
+            document.querySelectorAll('.result-container').forEach(container => {
+                container.style.display = 'none';
+            });
+        }
+
+        // Function to calculate score
+        function calculateScore(assessmentType) {
+            const assessment = assessments[assessmentType];
+            let totalScore = 0;
+            let allAnswered = true;
+
+            // Calculate score for each question
+            for (let i = 0; i < assessment.questions.length; i++) {
+                const selectedOption = document.querySelector(`#${assessmentType}-questions .question:nth-child(${i + 1}) .option.selected`);
+
+                if (selectedOption) {
+                    totalScore += parseInt(selectedOption.getAttribute('data-value'));
+                } else {
+                    allAnswered = false;
+                    break;
+                }
+            }
+
+            if (!allAnswered) {
+                alert('Please answer all questions before submitting.');
+                return;
+            }
+
+            // Show results
+            showResults(assessmentType, totalScore);
+        }
+
+        // Function to show results
+        function showResults(assessmentType, score) {
+            const assessment = assessments[assessmentType];
+            hideAllAssessments();
+
+            // Find the interpretation
+            let interpretation = '';
+            for (const range of assessment.interpretations) {
+                if (score >= range.min && score <= range.max) {
+                    interpretation = range.text;
+                    break;
+                }
+            }
+
+            // Update result elements
+            document.getElementById(`${assessmentType}-score`).textContent = `Score: ${score}`;
+            document.getElementById(`${assessmentType}-interpretation`).textContent = interpretation;
+            document.getElementById(`${assessmentType}-result`).style.display = 'block';
+        }
+    </script>
+</body>
+
+</html>
